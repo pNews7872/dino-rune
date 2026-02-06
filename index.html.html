@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>공룡 룬 시뮬레이터 (최종 보정판)</title>
+    <style>
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; background: #f4f7f6; }
+        .input-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 550px; margin-bottom: 20px; }
+        .input-row { display: flex; gap: 8px; margin-bottom: 15px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        .input-group label { font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #666; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        .slot-container { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+        .rune-slot { width: 100px; height: 135px; background: #fff; border: 2px dashed #bbb; border-radius: 10px; cursor: pointer; transition: 0.2s; text-align: center; font-size: 11px; overflow: hidden; padding: 5px; box-sizing: border-box; }
+        .rune-slot img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 5px; }
+        #status-msg { color: #d9534f; font-weight: bold; margin-bottom: 10px; font-size: 14px; text-align: center; }
+        .result-box { background: #eef7ff; padding: 15px; border-radius: 10px; border: 1px solid #007bff; margin-top: 10px; }
+        .result-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 15px; align-items: center; }
+        .result-val { font-weight: bold; color: #007bff; font-size: 18px; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.3); z-index: 10; width: 600px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 5; }
+        .rune-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-height: 500px; overflow-y: auto; margin: 15px 0; padding: 10px; border: 1px solid #eee; border-radius: 8px; }
+        .rune-item { border: 1px solid #ddd; padding: 15px; border-radius: 12px; cursor: pointer; text-align: center; font-size: 13px; transition: 0.2s; background: #fff; }
+        .rune-item img { width: 80px; height: 80px; display: block; margin: 0 auto 10px; pointer-events: none; }
+        .rune-item.selected { background: #007bff !important; color: white; border-color: #004a99; }
+        .save-btn { width: 100%; padding: 14px; background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <div class="input-card">
+        <h3>1. 기본 정보 설정</h3>
+        <div class="input-row">
+            <div class="input-group"><label>공격력 (최소 1)</label><input type="number" id="base-atk" value="1" min="1" oninput="calculate()"></div>
+            <div class="input-group"><label>체력 (최소 10)</label><input type="number" id="base-hp" value="10" min="10" oninput="calculate()"></div>
+        </div>
+        <div class="input-row">
+            <div class="input-group"><label>공룡 수</label>
+                <select id="dino-count" onchange="calculate()">
+                    <script>for(let i=1; i<=9; i++) document.write(`<option value="${i}">${i}마리</option>`)</script>
+                </select>
+            </div>
+            <div class="input-group"><label>타이탄 레벨</label>
+                <select id="titan-level" onchange="calculate()">
+                    <script>for(let i=1; i<=40; i++) document.write(`<option value="${i}">${i}레벨</option>`)</script>
+                </select>
+            </div>
+        </div>
+
+        <div class="result-box">
+            <div id="status-msg">연결 중...</div>
+            <div class="result-row"><span>최종 공격력 (마리당)</span><span class="result-val" id="res-atk">0</span></div>
+            <div class="result-row"><span>최종 체력 (마리당)</span><span class="result-val" id="res-hp">0</span></div>
+            <hr>
+            <div class="result-row" style="background: #f0fff4; padding: 10px; border-radius: 8px;">
+                <span style="font-weight: bold; color: #2f855a;">🛡️ 타이탄 1격당 예상 회복량</span>
+                <span class="result-val" id="res-recovery" style="color: #2f855a;">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-card" style="text-align: center;">
+        <h3>2. 룬 장착</h3>
+        <div class="slot-container">
+            <div class="rune-slot" onclick="openRuneModal(1)" id="slot1">➕<br>1번</div>
+            <div class="rune-slot" onclick="openRuneModal(2)" id="slot2">➕<br>2번</div>
+            <div class="rune-slot" onclick="openRuneModal(3)" id="slot3">➕<br>3번</div>
+            <div class="rune-slot" onclick="openRuneModal(4)" id="slot4">➕<br>4번</div>
+            <div class="rune-slot" onclick="openRuneModal(5)" id="slot5">➕<br>5번</div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeModal()"></div>
+    <div class="modal" id="modal">
+        <h4 style="margin-top:0;">룬 선택</h4>
+        <div class="rune-list" id="rune-list"></div>
+        <label style="font-size:13px; font-weight:bold;">룬 레벨 (1-31)</label>
+        <select id="rune-level" style="width:100%; padding:10px; margin-top:10px;">
+            <script>for(let i=1; i<=31; i++) document.write(`<option value="${i}">${i} 레벨</option>`)</script>
+        </select>
+        <button class="save-btn" onclick="applyRune()" style="margin-top:20px;">장착하기</button>
+    </div>
+
+    <script>
+        let titanStats = {};
+        let sheetData = {};
+        let slots = [null, null, null, null, null, null];
+        let targetSlot = 0;
+        let selectedRuneInfo = null;
+
+        function generateTitanStats() {
+            let atk = 5, hp = 2500000;
+            titanStats[1] = { atk, hp };
+            for (let i = 2; i <= 40; i++) {
+                if (i <= 8) atk += 5; else atk += 15;
+                if (i <= 6) hp += 2500000;
+                else if (i === 7) hp += 3125000;
+                else hp += 3750000;
+                titanStats[i] = { atk, hp };
+            }
+        }
+
+        const runeData = [
+            { name: "힐", url: "1ihowBMqeNvWag_4ou2JLgYilpLGvgnPa" },
+            { name: "공격력 증가 1", url: "1ihowBMqeNvWag_4ou2JLgYilpLGvgnPa" },
+            { name: "체력 증가 1", url: "1vNpdtLIozfnNOhjl2-gIMFH33xLmgh3P" },
+            { name: "희생 1", url: "1Yuy6PLeo7Jx-fAef04PVuqmiZjR_mw64" },
+            { name: "마지막 선물", url: "16X52VhA2_Z-UFH6bNFdqA_XkXwPdWZJg" },
+            { name: "트리플 임팩트", url: "1nO4CtfdB_FH7ZvCmL3uj1QPLDJte5mLB" },
+            { name: "단단한 피부 1", url: "1oHu7Ep7BwL7Es4dBRVdTyfnSrfd_xIq1" },
+            { name: "피해 저항 1", url: "1tBCAdO-UyCTP32gHwEc7TVISeRINsrqa" },
+            { name: "보호막", url: "1-FCajygUymZcpCCxaK7_Scg5NtiPKyiM" },
+            { name: "공격력 증가 2", url: "1PKky7_H1ZXJNxzZJhByTw7hUclQ0aTRG" },
+            { name: "체력 증가 2", url: "1oIkxrSL3mVZo-fHXOv2Ot2Zmmftwpp3H" },
+            { name: "협동 공격", url: "1DzFWPRILgHZAF28JrzUzKZQWKCtAN2vR" },
+            { name: "고독한 분노", url: "1hAyyAwatFwvlKqth4sunU_gURWoTY4ZJ" },
+            { name: "단단한 피부 2", url: "1XfdIrPSz_xm9v1KHB-TArpaRdv47zHLF" },
+            { name: "피해 저항 2", url: "13As5kbKRnyJA81fUClKxILhq8P9Rws0c" },
+            { name: "치명타 확률", url: "1rZUa6JfGfbksXt1qOO32veoEty9er_Bu" },
+            { name: "치명타 피해", url: "127l8ExJLlQENOySkwk_TiNDLO5gKo7Rm" },
+            { name: "공격력 증가 3", url: "1MBbzM8Snw4awmVoS-mBe1ATN_WlkcwqL" },
+            { name: "체력 증가 3", url: "1r_tPl7V2ydsAD3p_amPfL1d92i-6AFLN" },
+            { name: "죽을 준비", url: "1x77384PZAogZ_hTJeRH1iLXPrOfM5e_g" },
+            { name: "압축된 힘", url: "1aaijjlcR-GjrDeZy4WzBqFN2J7oBiw2C" },
+            { name: "매머드의 힘", url: "14UVrJVEIr5xZghRiG96doS_QhOQ0VxBK" },
+            { name: "흡혈", url: "1wpM4jrjnyShM9jkrWQuleCMRQzqajRg-" },
+            { name: "강타", url: "1duFRCFWSfwJIT4FcOfDcJU5t9_sYYSNd" },
+            { name: "방어벽", url: "19nNX-o2m8lDQfKLe5YXd7JijVf7HK0iI" },
+            { name: "메테오", url: "1fJVyoKiTVH1i0votjXaXuwAbTZjxnM-P" },
+            { name: "낙뢰", url: "1pPUwyTblvZJDbTAPUOJYr8hdUqPTZmy4" }
+        ];
+
+        async function loadRuneData() {
+            const baseUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi0P-i3d-QipG8R_9HNS-pdZCxrBYUVGzS6C-h9TtRF7UXMpaW6TfUgtU6r47lz7zU8xFXNISvIdrh/pub?gid=0&single=true&output=csv";
+            const statusEl = document.getElementById('status-msg');
+            
+            try {
+                // 시트 호출 시 캐시 우회 파라미터 추가
+                const response = await fetch(`${baseUrl}&t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error("CORS_OR_HTTP_ERROR");
+                
+                const csv = await response.text();
+                parseCsvData(csv);
+                statusEl.style.color = "#2f855a";
+                statusEl.innerText = "✅ 데이터 연결 성공";
+                calculate();
+            } catch (e) {
+                console.warn("일반 fetch 실패, 우회 경로 시도...");
+                // 우회 경로로 재시도
+                try {
+                    const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(baseUrl);
+                    const proxyRes = await fetch(proxyUrl);
+                    const proxyJson = await proxyRes.json();
+                    parseCsvData(proxyJson.contents);
+                    statusEl.style.color = "#2f855a";
+                    statusEl.innerText = "✅ 데이터 연결 성공 (우회)";
+                    calculate();
+                } catch (e2) {
+                    statusEl.style.color = "#d9534f";
+                    statusEl.innerText = "⚠️ 시트 연결 실패. 인터넷 상태나 시트 공유 설정을 확인하세요.";
+                }
+            }
+        }
+
+        function parseCsvData(csv) {
+            sheetData = {};
+            const rows = csv.split(/\r?\n/);
+            rows.forEach(row => {
+                const cols = row.split(",").map(c => c.replace(/^"|"$/g, '').trim());
+                if (cols.length < 4) return;
+                
+                const name = cols[0];
+                const lv = parseInt(cols[1]);
+                const v1 = parseFloat(cols[2]) || 0;
+                const v2 = parseFloat(cols[3]) || 0;
+
+                if (name && !isNaN(lv)) {
+                    if (!sheetData[name]) sheetData[name] = {};
+                    sheetData[name][lv] = [v1, v2];
+                }
+            });
+        }
+
+        const listDiv = document.getElementById('rune-list');
+        runeData.forEach(rune => {
+            const item = document.createElement('div');
+            item.className = 'rune-item';
+            const imgUrl = `https://drive.google.com/thumbnail?id=${rune.url}&sz=w200`;
+            item.innerHTML = `<img src="${imgUrl}"><b>${rune.name}</b>`;
+            item.onclick = () => {
+                const isDuplicate = slots.some(s => s && s.name === rune.name);
+                if (isDuplicate) { alert("이미 장착된 룬입니다."); return; }
+                document.querySelectorAll('.rune-item').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+                selectedRuneInfo = { ...rune, imgUrl };
+            };
+            listDiv.appendChild(item);
+        });
+
+        function openRuneModal(num) { targetSlot = num; document.getElementById('modal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
+
+        function applyRune() {
+            if(!selectedRuneInfo) return;
+            const lv = parseInt(document.getElementById('rune-level').value);
+            slots[targetSlot] = { name: selectedRuneInfo.name, level: lv };
+            const slotEl = document.getElementById('slot' + targetSlot);
+            slotEl.style.borderStyle = "solid";
+            slotEl.innerHTML = `<img src="${selectedRuneInfo.imgUrl}"><b>${selectedRuneInfo.name}</b><br>Lv.${lv}`;
+            calculate();
+            closeModal();
+            selectedRuneInfo = null;
+        }
+
+        function calculate() {
+            const lv = parseInt(document.getElementById('titan-level').value);
+            let baseAtk = parseFloat(document.getElementById('base-atk').value) || 0;
+            let baseHp = parseFloat(document.getElementById('base-hp').value) || 0;
+            if (baseAtk < 1) baseAtk = 1;
+            if (baseHp < 10) baseHp = 10;
+
+            const titan = titanStats[lv];
+            if (!titan) return;
+
+            let addAtk = 0, addHp = 0, mulAtk = 1, mulHp = 1;
+            let healPct = 0, drainPct = 0;
+
+            slots.forEach(slot => {
+                if (slot && sheetData[slot.name] && sheetData[slot.name][slot.level]) {
+                    const data = sheetData[slot.name][slot.level];
+                    const val0 = data[0], valPct = data[1] / 100;
+
+                    if (slot.name.includes("공격력 증가")) addAtk += val0;
+                    else if (slot.name.includes("체력 증가")) addHp += val0;
+                    else if (slot.name === "압축된 힘") { mulAtk += valPct; mulHp -= valPct; }
+                    else if (slot.name === "매머드의 힘") { mulHp += valPct; mulAtk -= valPct; }
+                    else if (slot.name === "강타") mulAtk += valPct;
+                    else if (slot.name === "방어벽") mulHp += valPct;
+                    else if (["메테오", "낙뢰"].includes(slot.name)) { mulAtk += valPct; mulHp += valPct; }
+                    else if (["협동 공격", "고독한 분노"].includes(slot.name)) { addAtk += val0; addHp += val0; }
+                    if (slot.name === "힐") healPct = valPct;
+                    if (slot.name === "흡혈") drainPct = valPct;
+                }
+            });
+
+            const finalAtk = (baseAtk + titan.atk + addAtk) * mulAtk;
+            const finalHp = (baseHp + titan.hp + addHp) * mulHp;
+            const totalRecovery = (finalHp * healPct * 3.2) + (finalAtk * drainPct * 3.2);
+
+            document.getElementById('res-atk').innerText = Math.floor(finalAtk).toLocaleString();
+            document.getElementById('res-hp').innerText = Math.floor(finalHp).toLocaleString();
+            document.getElementById('res-recovery').innerText = Math.floor(totalRecovery).toLocaleString();
+        }
+
+        window.onload = () => { generateTitanStats(); loadRuneData(); };
+    </script>
+</body>
+</html>
