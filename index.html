@@ -45,8 +45,8 @@
 
 <div class="card">
     <div class="input-grid">
-        <div><label>기본 공격력</label><input type="number" id="baseAtk" value="1" onfocus="this.select()" oninput="autoCalc()"></div>
-        <div><label>기본 체력</label><input type="number" id="baseHp" value="10" onfocus="this.select()" oninput="autoCalc()"></div>
+        <div><label>공룡 공격력</label><input type="number" id="baseAtk" value="1" onfocus="this.select()" oninput="autoCalc()"></div>
+        <div><label>공룡 체력</label><input type="number" id="baseHp" value="10" onfocus="this.select()" oninput="autoCalc()"></div>
         <div style="grid-column: span 2;">
             <label>내 공룡 수</label>
             <select id="dinoCount" onchange="autoCalc()">
@@ -73,7 +73,7 @@
 </div>
 
 <div class="card" style="margin-bottom: 10px;">
-    <label>타겟 타이탄 선택</label>
+    <label>타이탄 레벨 선택</label>
     <select id="targetTitan" onchange="autoCalc()"></select>
 </div>
 
@@ -291,4 +291,5 @@
 </script>
 </body>
 </html>
+
 
