@@ -219,11 +219,17 @@
     }
 
 
-    function selectRuneFromGrid(name, el) {
+     function selectRuneFromGrid(name, el) {
         state.tempRune = name;
         document.querySelectorAll('.rune-item').forEach(i => i.style.borderColor = 'transparent');
         if(el) el.style.borderColor = '#2196F3';
-        document.getElementById('detailArea').style.display = 'block';
+        
+        const detailArea = document.getElementById('detailArea');
+        detailArea.style.display = 'block';
+        
+        // [추가된 로직] 룬 선택 시 레벨 설정 영역으로 부드럽게 스크롤
+        detailArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
         updateDetail();
     }
 
