@@ -57,6 +57,9 @@
 </div>
 
 <div class="card">
+    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #444; text-align: center;">
+        룬을 장착할 슬롯을 선택하세요
+    </div>
     <div class="slot-container">
         <script>for(let i=0;i<5;i++) document.write(`<div class="slot" id="slot${i}" onclick="openPicker(${i})"><small style="color:#ccc">슬롯 ${i+1}</small></div>`);</script>
     </div>
@@ -82,17 +85,14 @@
 </div>
 
 <script>
-    // 타이탄 데이터 자동 생성 (Lv.1 ~ Lv.40)
     const TITAN_DATA = (function() {
         let data = [];
         let currentAtk = 5;
         let currentHp = 2500000;
         for (let lv = 1; lv <= 40; lv++) {
             data.push([lv, currentAtk, currentHp]);
-            // 공격력 증가 로직
             if (lv < 6) currentAtk += 5;
             else currentAtk += 15;
-            // 체력 증가 로직
             if (lv < 4) currentHp += 2500000;
             else if (lv === 4) currentHp += 3125000;
             else currentHp += 3750000;
@@ -128,15 +128,12 @@
 
     let state = { slots: [null,null,null,null,null], activeIdx: null, tempRune: null };
     
-    // 타이탄 선택 상자 초기화
     const titanSel = document.getElementById('targetTitan');
     TITAN_DATA.forEach(t => titanSel.add(new Option(`Lv.${t[0]} (ATK ${t[1]} / HP ${t[2].toLocaleString()})`, t[0])));
 
-    // 룬 레벨 상자 초기화
     const lvSelect = document.getElementById('runeLevel');
     for(let i=1; i<=31; i++) lvSelect.add(new Option(i + "Lv", i));
 
-    // 룬 그리드 초기화
     const grid = document.getElementById('runeGrid');
     for (let name in RUNES_DATA) {
         const item = document.createElement('div');
@@ -184,15 +181,12 @@
         const idx = state.activeIdx;
         const lv = document.getElementById('runeLevel').value;
         const runeName = state.tempRune;
-
-        // 중복 장착 방지
         state.slots.forEach((s, i) => {
             if (s && s.name === runeName && i !== idx) {
                 state.slots[i] = null;
                 document.getElementById(`slot${i}`).innerHTML = `<small style="color:#ccc">슬롯 ${i+1}</small>`;
             }
         });
-
         state.slots[idx] = { name: runeName, level: lv, effect: RUNES_DATA[runeName].levels[lv] };
         document.getElementById(`slot${idx}`).innerHTML = `<img src="https://drive.google.com/thumbnail?id=${RUNES_DATA[runeName].imgId}&sz=200">`;
         document.getElementById('runePicker').style.display = 'none';
@@ -224,14 +218,8 @@
         const count = Number(document.getElementById('dinoCount').value);
         const titanLv = Number(document.getElementById('targetTitan').value);
         const titanInfo = TITAN_DATA.find(t => t[0] === titanLv);
-        
         const dSpd = 0.75, tSpd = 2.4;
-        let cProb = 3, cDmg = 105; 
-
-        let iA = 0, iH = 0, pA = 0, pH = 0;
-        let extraRate = 0;
-        let hRate = 0, lsRate = 0;
-        let redFix = 0, redPct = 0;
+        let cProb = 3, cDmg = 105, iA = 0, iH = 0, pA = 0, pH = 0, extraRate = 0, hRate = 0, lsRate = 0, redFix = 0, redPct = 0;
 
         state.slots.forEach(s => {
             if(!s) return;
@@ -240,7 +228,6 @@
             else if(n.includes("체력 증가") && !n.includes("%")) iH += Number(e.value);
             else if(n==="협동 공격" && count >= 5) { iA += Number(e.atk); iH += Number(e.hp); }
             else if(n==="고독한 분노" && count === 1) { iA += Number(e.atk); iH += Number(e.hp); }
-            
             if(n==="강타") pA += parseFloat(e.value);
             if(n==="치명타 확률") cProb += parseFloat(e.value);
             if(n==="치명타 피해") cDmg += parseFloat(e.value);
@@ -249,29 +236,17 @@
             if(n==="매머드의 힘") { pH += parseFloat(e.hp); pA -= 25; }
             if(n.includes("단단한 피부")) redFix += Number(e.value);
             if(n==="피해 저항 1" || n==="피해 저항 2") redFix += (e.prob/100 * e.value);
-            
-            if(n==="메테오" || n==="낙뢰") { 
-                pA += Number(e.extra); 
-                pH += Number(e.extra); 
-                extraRate += (e.prob/100 * e.value/100); 
-            }
+            if(n==="메테오" || n==="낙뢰") { pA += Number(e.extra); pH += Number(e.extra); extraRate += (e.prob/100 * e.value/100); }
             if(n==="트리플 임팩트") extraRate += (e.value/100 / 3);
             if(n==="힐") hRate += (e.prob/100 * e.value/100); 
             if(n==="흡혈") lsRate += (e.prob/100 * e.value/100); 
         });
 
-        const fA = (bA + iA) * (1 + pA/100);
-        const fH = (bH + iH) * (1 + pH/100);
-
+        const fA = (bA + iA) * (1 + pA/100), fH = (bH + iH) * (1 + pH/100);
         const avgDmgPerHit = fA * (1 + (cProb/100 * (cDmg/100))) + (fA * extraRate);
         const dps = avgDmgPerHit / dSpd * count;
-        
-        const rawTitanAtk = titanInfo[1];
-        const damageAfterPct = rawTitanAtk * (1 - redPct/100);
-        const finalDamageTaken = Math.max(1, damageAfterPct - redFix);
-        const healPerTitanAttack = (fH * hRate) + (fA * lsRate * (tSpd/dSpd));
-        const netDamagePerHit = Math.max(0, finalDamageTaken - healPerTitanAttack);
-
+        const finalDamageTaken = Math.max(1, (titanInfo[1] * (1 - redPct/100)) - redFix);
+        const netDamagePerHit = Math.max(0, finalDamageTaken - ((fH * hRate) + (fA * lsRate * (tSpd/dSpd))));
         const survivalTime = netDamagePerHit <= 0 ? 999999 : (fH / (netDamagePerHit / tSpd));
         const timeToKill = titanInfo[2] / dps;
         const isWin = survivalTime >= timeToKill;
@@ -286,10 +261,7 @@
             <div class="status-badge ${isWin?'pass':'fail'}">${isWin?'클리어 가능':'스펙 부족'}</div>
         `;
     }
-
     autoCalc();
 </script>
 </body>
 </html>
-
-
