@@ -321,7 +321,6 @@
             if(n==="매머드의 힘") { pH += parseFloat(e.hp); pA -= 25; }
             if(n.includes("단단한 피부")) redFix += Number(e.value);
             if(n.includes("피해 저항")) redFix += (e.prob/100 * e.value);
-            if(n==="보호막") redFix += (titanInfo[1] * (e.value/100) * (e.turn/10)); 
             
             if(n==="메테오" || n==="낙뢰") { 
                 pA += Number(e.extra); 
@@ -347,13 +346,16 @@
         const totalAccumDmg = dps * accumTimeSec;
         const hpPercent = ((totalAccumDmg / titanInfo[2]) * 100).toFixed(2);
 
+        // --- 정수 기반 일치 로직 ---
         const pureDamage = titanInfo[1];
-        const reducedDamage = Math.max(1, pureDamage - redFix);
-        const recoverPerHit = (fH * hRate) + (fA * lsRate * (tSpd / dSpd));
-        const netChange = recoverPerHit - reducedDamage;
+        const finalRedFix = Math.floor(redFix);
+        const finalReducedDamage = Math.max(0, pureDamage - finalRedFix);
+        const finalRecover = Math.floor((fH * hRate) + (fA * lsRate * (tSpd / dSpd)));
+        const netChange = finalRecover - finalReducedDamage;
+        // -------------------------
+
         const changeClass = netChange >= 0 ? 'text-green' : 'text-red';
         const changeSign = netChange >= 0 ? '+' : '';
-
         const survivalTime = netChange >= 0 ? 999999 : (fH / (Math.abs(netChange) / tSpd));
         const timeToKill = titanInfo[2] / dps;
         const isWin = survivalTime >= timeToKill;
@@ -367,9 +369,9 @@
             <div style="font-size:13px; color:#666; margin-bottom:10px; border-bottom:1px solid #bbdefb; padding-bottom:10px;">
                 최종 공격력: <b>${Math.floor(fA).toLocaleString()}</b> / 최종 체력: <b>${Math.floor(fH).toLocaleString()}</b>
                 <div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:6px; line-height:1.6;">
-                    1회 피격 시 체력 변동 수치: <span class="${changeClass}">${changeSign}${Math.floor(netChange).toLocaleString()}</span><br>
-                    피해량 (보호막 포함): <span style="color:#d32f2f;">${Math.floor(reducedDamage)}</span> | 
-                    회복 기댓값: <span style="color:#2e7d32;">${Math.floor(recoverPerHit)}</span>
+                    1회 피격 시 체력 변동 수치: <span class="${changeClass}">${changeSign}${netChange.toLocaleString()}</span><br>
+                    피해량(-${finalRedFix}): <span style="color:#d32f2f;">${finalReducedDamage}</span> | 
+                    회복 기댓값: <span style="color:#2e7d32;">${finalRecover}</span>
                 </div>
             </div>
             <div class="accum-dmg-box">
@@ -386,8 +388,8 @@
             <div style="font-size:13px;">킬타임: ${formatTime(timeToKill)} / 생존시간: ${formatTime(survivalTime)}</div>
             <div class="status-badge ${isWin?'pass':'fail'}">${isWin?'클리어 가능':'스펙 부족'}</div>
         `;
+
     }
+
     autoCalc();
 </script>
-</body>
-</html>
