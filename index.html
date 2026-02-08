@@ -189,7 +189,7 @@
         grid.appendChild(item);
     }
 
-       function openPicker(idx) {
+     function openPicker(idx) {
         // 이미 해당 슬롯이 열려있는 상태에서 다시 누르면 닫기
         if (state.activeIdx === idx && document.getElementById('runePicker').style.display === 'block') {
             state.activeIdx = null;
@@ -207,44 +207,69 @@
         });
 
         document.getElementById('runePicker').style.display = 'block';
+
+        // [수정] 슬롯에 이미 룬이 있다면 그 룬의 레벨과 이름을 불러와서 설명 고정
         if(state.slots[idx]) {
+            const currentRune = state.slots[idx];
+            state.tempRune = currentRune.name; 
+            document.getElementById('runeLevel').value = currentRune.level;
             document.getElementById('removeBtn').style.display = 'block';
-            selectRuneFromGrid(state.slots[idx].name);
-            document.getElementById('runeLevel').value = state.slots[idx].level;
+            selectRuneFromGrid(currentRune.name);
         } else { 
+            state.tempRune = null;
             document.getElementById('removeBtn').style.display = 'none'; 
             document.getElementById('detailArea').style.display = 'none';
             document.querySelectorAll('.rune-item').forEach(i => i.style.borderColor = 'transparent');
         }
     }
 
-
-     function selectRuneFromGrid(name, el) {
+    function selectRuneFromGrid(name, el) {
         state.tempRune = name;
         document.querySelectorAll('.rune-item').forEach(i => i.style.borderColor = 'transparent');
-        if(el) el.style.borderColor = '#2196F3';
+        
+        // 시각적 피드백 (그리드에서 선택 강조)
+        if(el) {
+            el.style.borderColor = '#2196F3';
+        } else {
+            // 이름을 통해 요소를 찾아 강조 (openPicker에서 호출될 때)
+            const items = document.querySelectorAll('.rune-item');
+            items.forEach(item => {
+                if(item.querySelector('span').innerText === name) {
+                    item.style.borderColor = '#2196F3';
+                }
+            });
+        }
         
         const detailArea = document.getElementById('detailArea');
         detailArea.style.display = 'block';
-        
-        // [추가된 로직] 룬 선택 시 레벨 설정 영역으로 부드럽게 스크롤
-        detailArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        
         updateDetail();
     }
 
     function updateDetail() {
         if (!state.tempRune) return;
+        
         const lv = document.getElementById('runeLevel').value;
         const data = RUNES_DATA[state.tempRune];
         const gradeEl = document.getElementById('runeGrade');
+        
         gradeEl.innerText = `${data.grade} 등급`;
         gradeEl.className = `rune-grade grade-${data.grade}`;
         
-        if (Object.keys(data.levels).length === 0) {
-            document.getElementById('runeDesc').innerText = "Ori는 귀찮아 자러 갈거야.";
+        if (!data.levels || Object.keys(data.levels).length === 0) {
+            document.getElementById('runeDesc').innerText = "정보를 불러올 수 없습니다.";
             return;
         }
+
+        let d = data.desc;
+        const eff = data.levels[lv];
+        if (eff) {
+            // [수정] 슬롯이나 레벨이 바뀌어도 현재 tempRune 데이터만 참조하도록 엄격히 제한
+            for (let k in eff) {
+                d = d.split(`{${k}}`).join(eff[k]);
+            }
+        }
+        document.getElementById('runeDesc').innerText = d;
+    }
 
         let d = data.desc;
         const eff = data.levels[lv];
@@ -393,4 +418,5 @@
 
     autoCalc();
 </script>
+
 
