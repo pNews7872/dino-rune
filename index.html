@@ -234,6 +234,11 @@
         
         const detailArea = document.getElementById('detailArea');
         detailArea.style.display = 'block';
+        
+        // --- 추가된 코드: 레벨 선택 영역으로 자동 스크롤 ---
+        detailArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // ----------------------------------------------
+
         updateDetail();
     }
 
@@ -403,4 +408,5 @@
 </script>
 </body>
 </html>
+
 
