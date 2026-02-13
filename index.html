@@ -110,9 +110,22 @@
         </div>
     </div>
     <div class="card" style="margin-bottom: 10px;">
-        <label>타이탄 레벨 선택</label>
-        <select id="targetTitan" onchange="updateLiveStats()">
-        </select>
+        <div class="input-grid">
+            <div>
+                <label>타이탄 레벨 선택</label>
+                <select id="targetTitan" onchange="updateLiveStats()"></select>
+            </div>
+            <div>
+                <label>전투 제한 시간</label>
+                <select id="simTime" onchange="updateLiveStats()">
+                    <script>
+                        for(let i=10; i<=120; i+=10) {
+                            document.write(`<option value="${i}" ${i===90 ? 'selected' : ''}>${i}분</option>`);
+                        }
+                    </script>
+                </select>
+            </div>
+        </div>
         <div id="liveStats" class="stat-summary" style="margin-top:15px;">
         </div>
         <button class="btn-sim" onclick="startSimulation()">시뮬레이션 시작</button>
@@ -244,13 +257,14 @@ function updateLiveStats() {
         <div class="stat-row"><span>1회 피격 당 회복(기댓값):</span><span class="res-val" style="color:green;">+${totalHealIn3Sec.toFixed(1)}</span></div>
     `;
 // --- 자동 저장 로직 ---
-    const saveData = {
-        baseAtk: document.getElementById('baseAtk').value,
-        baseHp: document.getElementById('baseHp').value,
-        dinoCount: document.getElementById('dinoCount').value,
-        targetTitan: document.getElementById('targetTitan').value,
-        slots: state.slots 
-    };
+const saveData = {
+    baseAtk: document.getElementById('baseAtk').value,
+    baseHp: document.getElementById('baseHp').value,
+    dinoCount: document.getElementById('dinoCount').value,
+    targetTitan: document.getElementById('targetTitan').value,
+    simTime: document.getElementById('simTime').value,
+    slots: state.slots 
+};
     localStorage.setItem('dino_mutant_config', JSON.stringify(saveData));
 }
         function startSimulation() {
@@ -258,6 +272,10 @@ function updateLiveStats() {
             setTimeout(autoCalc, 50);
         }
 function autoCalc() {
+    // 유저 설정 시간(분)을 초로 변환 (기본값 90분)
+    const simTimeMin = Number(document.getElementById('simTime').value) || 90;
+    const maxTimeSec = simTimeMin * 60;
+
     const bA = Number(document.getElementById('baseAtk').value) || 0;
     const bH = Number(document.getElementById('baseHp').value) || 0;
     const dinoCount = Number(document.getElementById('dinoCount').value);
@@ -311,15 +329,15 @@ function autoCalc() {
 
     const SIM_COUNT = 1000;
     let totalWins = 0, totalDeadSum = 0, totalLifeTimeSum = 0, totalDmgSum = 0;
-    let minHpRecords = []; // 모든 판의 최저 체력 기록
+    let minHpRecords = [];
 
     for(let i=0; i<SIM_COUNT; i++) {
         let currentTHp = tMaxHp;
-        // minHp: 각 공룡의 이번 판 최저 체력을 fMaxHp로 초기화하여 추적
         let dinos = Array(dinoCount).fill(0).map(() => ({ hp: fMaxHp, minHp: fMaxHp, shield: defenseRunes.shield.turns, hits: 0, alive: true, time: 0 }));
         let time = 0;
 
-        while(currentTHp > 0 && dinos.some(d => d.alive) && time < 7200) {
+        // 7200 대신 maxTimeSec 사용
+        while(currentTHp > 0 && dinos.some(d => d.alive) && time < maxTimeSec) {
             time++;
             dinos.forEach(d => {
                 if(!d.alive) return;
@@ -343,7 +361,6 @@ function autoCalc() {
                     d.hp -= Math.max(0, tDmg);
                     if(Math.random() < defenseRunes.healProb) d.hp = Math.min(fMaxHp, d.hp + (fMaxHp * defenseRunes.healRate));
                     
-                    // 최저 체력 갱신
                     if(d.hp < d.minHp) d.minHp = d.hp;
                     if(d.hp <= 0) { d.hp = 0; d.alive = false; d.minHp = 0; }
                 });
@@ -353,17 +370,13 @@ function autoCalc() {
         totalDeadSum += dinos.filter(d => !d.alive).length;
         dinos.forEach(d => {
             totalLifeTimeSum += d.time;
-            minHpRecords.push(Math.max(0, d.minHp)); // 모든 공룡의 최저 기록 수집
+            minHpRecords.push(Math.max(0, d.minHp));
         });
     }
 
-   // ... (이전 시뮬레이션 연산 로직은 동일)
-
-// 결과 데이터 가공
-    const avgDead = (totalDeadSum / SIM_COUNT).toFixed(1); // 소수점 유지 (0.1마리 등)
-    const totalSeconds = Math.floor(totalLifeTimeSum / (SIM_COUNT * dinoCount)); // 시간은 정수로
+    const avgDead = (totalDeadSum / SIM_COUNT).toFixed(2);
+    const totalSeconds = Math.floor(totalLifeTimeSum / (SIM_COUNT * dinoCount));
     
-    // 시, 분, 초 계산 로직
     const h = Math.floor(totalSeconds / 3600);
     const m = Math.floor((totalSeconds % 3600) / 60);
     const s = totalSeconds % 60;
@@ -375,47 +388,57 @@ function autoCalc() {
 
     const avgDmg = (totalDmgSum / SIM_COUNT);
     const dmgPercent = (avgDmg / tMaxHp * 100).toFixed(1);
-    
-    // 최저 체력 평균 및 비율 계산
     const avgMinHp = (minHpRecords.reduce((a, b) => a + b, 0) / minHpRecords.length);
     const minHpPercent = (avgMinHp / fMaxHp * 100);
 
- // 1. 안정성 멘트 및 색상 세분화 (7단계)
+// 1. 안정성 멘트 및 색상 세분화 (사망 평균치 기준 상세 분류)
     let stabilityText = "";
     let textColor = "";
+    const deadVal = parseFloat(totalDeadSum / SIM_COUNT); // 반올림 전 정밀 수치
 
-    if (parseFloat(avgDead) > 0) {
+    if (deadVal >= 1.0) { 
+        // 평균 1마리 이상 사망 시
         stabilityText = "공룡이 버틸 수 없습니다";
-        textColor = "#942121"; // 검붉은색
+        textColor = "#942121"; 
+    } else if (deadVal > 0.1) { 
+        // 평균 0.1~1.0마리 미만 사망 시 (자주 죽음)
+        stabilityText = "매우 위험 (전멸 가능성 다분함)"; 
+        textColor = "#FF0000"; 
+    } else if (deadVal > 0) { 
+        // 평균 0.1마리 미만 사망 시 (운 나쁘면 죽음)
+        stabilityText = "위험 (전멸 가능성 존재)"; 
+        textColor = "#FF8C00"; 
     } else {
-        if (minHpPercent <= 10) { stabilityText = "매우 위험"; textColor = "#FF0000"; } // 붉은색
-        else if (minHpPercent <= 20) { stabilityText = "위험"; textColor = "#FF8C00"; } // 주황색
-        else if (minHpPercent <= 30) { stabilityText = "보통"; textColor = "#FFD700"; } // 노란색 (골드)
-        else if (minHpPercent <= 40) { stabilityText = "안정"; textColor = "#90EE90"; } // 연초록색
-        else if (minHpPercent <= 50) { stabilityText = "매우 안정"; textColor = "#008000"; } // 초록색
-        else { stabilityText = "공룡이 죽을 수 없습니다"; textColor = "#54cef0"; } // 파란색
+        // 생존율 100%인 경우 (기존 체력 기반 판정)
+        if (minHpPercent <= 10) { stabilityText = "주의 (아슬아슬함)"; textColor = "#FFD700"; }
+        else if (minHpPercent <= 30) { stabilityText = "보통"; textColor = "#90EE90"; }
+        else if (minHpPercent <= 50) { stabilityText = "안정"; textColor = "#008000"; }
+        else { stabilityText = "완전 안전"; textColor = "#54cef0"; }
     }
 
-    // 2. 게이지 바 색상 로직 (3단계)
-    let barColor = "#f44336"; // 25% 미만 빨강
-    if (minHpPercent >= 50) barColor = "#4caf50"; // 50% 이상 초록
-    else if (minHpPercent >= 25) barColor = "#ffc107"; // 25% 이상 노랑
+let barColor = "#f44336";
+    if (minHpPercent >= 50) barColor = "#4caf50";
+    else if (minHpPercent >= 25) barColor = "#ffc107";
 
-    // 3. UI 렌더링
+    // 모든 시뮬레이션 중 가장 낮았던 체력 수치 (절대 최저치)
+    const absoluteMinHp = Math.min(...minHpRecords);
+    const absoluteMinHpPercent = (absoluteMinHp / fMaxHp * 100).toFixed(1);
+
+    // --- 이 부분이 하나로 합쳐져야 합니다 ---
     document.getElementById('finalStats').innerHTML = `
         <div style="font-weight: bold; font-size: 16px; margin-bottom: 12px; border-bottom: 2px solid #eee; padding-bottom: 8px; color:#444;">
-            📊 시뮬레이션 결과(천 번 반복 계산)
+            📊 시뮬레이션 결과(1,000번 반복 시뮬)
         </div>
         
         <div style="margin-bottom: 18px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
-                <span style="font-size: 13px; color: #000;">공룡 체력 바</span>
+                <span style="font-size: 13px; color: #000; font-weight: bold;">체력 최저치 기록 평균: ${minHpPercent.toFixed(1)}%</span>
                 <span style="font-size: 16px; font-weight: 900; color: ${textColor};">${stabilityText}</span>
             </div>
             <div style="width: 100%; height: 14px; background: #eee; border-radius: 7px; overflow: hidden; border: 1px solid #ddd;">
                 <div style="width: ${minHpPercent}%; height: 100%; background-color: ${barColor}; transition: width 0.3s ease;"></div>
             </div>
-            <div style="text-align: right; font-size: 11px; color: #999; margin-top: 4px;">체력 최저치 기록 평균: ${minHpPercent.toFixed(1)}%</div>
+            <div style="text-align: right; font-size: 11px; color: #999; margin-top: 4px;">시뮬레이션 중에서 체력이 가장 낮았을 때 체력 수치: ${absoluteMinHpPercent}%</div>
         </div>
 
         <div style="text-align:left; display:inline-block; font-size:14px; width: 100%;">
@@ -496,6 +519,7 @@ if (savedData) {
     document.getElementById('baseHp').value = data.baseHp || 10;
     document.getElementById('dinoCount').value = data.dinoCount || 1;
     document.getElementById('targetTitan').value = data.targetTitan || 1;
+    document.getElementById('simTime').value = data.simTime || 90;
     
 if (data.slots) {
     state.slots = data.slots;
@@ -515,4 +539,3 @@ updateLiveStats();
 </body>
 
 </html>
-
