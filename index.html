@@ -35,6 +35,21 @@
       --slot-border: #dcdde1;
     }
 
+    /* 사이트 전체(HTML, BODY) 스크롤 바 숨기기 */
+    html,
+    body {
+      -ms-overflow-style: none;
+      /* IE, Edge */
+      scrollbar-width: none;
+      /* Firefox */
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      display: none;
+      /* Chrome, Safari, Opera */
+    }
+
     body {
       font-family: 'Pretendard', sans-serif;
       background: var(--bg-color);
@@ -143,7 +158,7 @@
     }
 
     .slot.active {
-      border-color: var(--text-main);
+      border-color: #f1c40f;
       background: rgba(33, 150, 243, 0.1);
     }
 
@@ -427,27 +442,53 @@
       font-size: 13px;
     }
 
-/* 토글 스위치 디자인 */
-.switch { position: relative; display: inline-block; width: 44px; height: 22px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider {
-  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc; transition: .4s; border-radius: 22px;
-}
-.slider:before {
-  position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
-  background-color: white; transition: .4s; border-radius: 50%;
-}
+    /* 토글 스위치 디자인 */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 22px;
+    }
 
-/* ON 상태일 때의 배경색을 노란색(#f1c40f)으로 변경 */
-input:checked + .slider { 
-  background-color: #f1c40f; 
-}
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
 
-/* ON 상태일 때 동그라미(before)가 이동하는 로직 */
-input:checked + .slider:before { 
-  transform: translateX(22px); 
-}
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 22px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    /* ON 상태일 때의 배경색을 노란색(#f1c40f)으로 변경 */
+    input:checked+.slider {
+      background-color: #f1c40f;
+    }
+
+    /* ON 상태일 때 동그라미(before)가 이동하는 로직 */
+    input:checked+.slider:before {
+      transform: translateX(22px);
+    }
 
     .hp-bar-container {
       background: #444;
@@ -481,39 +522,68 @@ input:checked + .slider:before {
       font-size: 20px;
       cursor: pointer;
     }
-    /* 타이탄 레벨 및 시간 선택창 스타일 */
-#titanLevelSelect, #timeLimitSelect {
-  width: 100%;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background-color: var(--input-bg);
-  color: var(--text-main);
-  outline: none;
-  
-  /* 2. 스크롤바 숨기기 */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-  
-  /* 3. 브라우저 기본 화살표 디자인 제거 및 커스텀 화살표 */
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f1c40f'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 20px;
-}
 
-/* 크롬, 사파리에서 스크롤바 완전히 숨기기 */
-#titanLevelSelect::-webkit-scrollbar,
-#timeLimitSelect::-webkit-scrollbar {
-  display: none;
-}
+    .custom-dropdown {
+      position: relative;
+      width: 100%;
+    }
 
-/* 마우스 올렸을 때 강조 */
-#titanLevelSelect:focus {
-  border-color: #f1c40f; /* 노란색 포인트 */
-}
+    .selected-value {
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      color: var(--text-main);
+      position: relative;
+    }
+
+    .selected-value::after {
+      content: "▼";
+      position: absolute;
+      right: 15px;
+      font-size: 10px;
+      color: #f1c40f;
+    }
+
+    .dropdown-list {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      max-height: 250px;
+      overflow-y: auto;
+      background: var(--card-bg);
+      border: 1px solid #f1c40f;
+      border-radius: 0 0 8px 8px;
+      z-index: 10000;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+      -ms-overflow-style: none;
+      /* IE, Edge */
+      scrollbar-width: none;
+      /* Firefox */
+    }
+
+    b .dropdown-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .dropdown-list li {
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+
+    .dropdown-list li:hover {
+      background: var(--input-bg);
+      color: #f1c40f;
+    }
   </style>
 </head>
 
@@ -577,7 +647,7 @@ input:checked + .slider:before {
       </div>
     </div>
 
-        <div class="card">
+    <div class="card">
       <h2>장착된 룬</h2>
       <div class="slot-wrapper" id="slotContainer"></div>
       <div id="runePicker">
@@ -599,22 +669,29 @@ input:checked + .slider:before {
         </div>
       </div>
     </div>
-    
+
     <div class="card">
       <h2>전투 설정</h2>
       <div class="input-grid">
         <div class="full-width">
           <label>타이탄 레벨 선택</label>
-          <select id="titanLevelSelect" onchange="saveUserConfig()"></select>
+          <div class="custom-dropdown" id="titanDropdown">
+            <div class="selected-value" onclick="toggleDropdown('titanList')">Lv.1 (ATK 5 / HP 2,500,000)</div>
+            <ul class="dropdown-list" id="titanList"></ul>
+            <input type="hidden" id="titanLevelSelect" value="1">
+          </div>
         </div>
+
         <div class="full-width">
           <label>전투 제한 시간</label>
-          <select id="timeLimitSelect" onchange="saveUserConfig()"></select>
+          <div class="custom-dropdown" id="timeDropdown">
+            <div class="selected-value" onclick="toggleDropdown('timeList')">90분</div>
+            <ul class="dropdown-list" id="timeList"></ul>
+            <input type="hidden" id="timeLimitSelect" value="90">
+          </div>
         </div>
       </div>
     </div>
-
-
 
     <div class="card">
       <h2>실시간 전투 시뮬레이션</h2>
@@ -659,6 +736,19 @@ input:checked + .slider:before {
         }
       });
 
+      function toggleDropdown(id) {
+        const list = document.getElementById(id);
+        const isOpen = list.style.display === 'block';
+        document.querySelectorAll('.dropdown-list').forEach(el => el.style.display = 'none');
+        list.style.display = isOpen ? 'none' : 'block';
+      }
+      // 외부 클릭 시 드롭다운 닫기
+      window.addEventListener('click', (e) => {
+        if (!e.target.closest('.custom-dropdown')) {
+          document.querySelectorAll('.dropdown-list').forEach(el => el.style.display = 'none');
+        }
+      });
+
       function toggleMenu() {
         const menu = document.getElementById('sideMenu');
         const overlay = document.getElementById('menuOverlay');
@@ -683,15 +773,15 @@ input:checked + .slider:before {
       const RUNES_DATA = {
         "힐": {
           grade: "일반",
-          imgId: "1ihowBMqeNvWag_4ou2JLgYilpLGvgnPa",
-          desc: "유닛에게 공격당할 때 {prob}% 확률로 내 유닛 최대 체력의 {value}% 회복",
+          imgId: "10kOU5_hHneBmIpMJ-Hx0FuN-UanR5FDN",
+          desc: "유닛에게 공격당할 때 {prob}% 확률로 내 유닛 최대 체력의 {rec_p}% 회복",
           levels: (function() {
             let lv = {};
             const p = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 13];
             const v = [1, 1.1, 1.2, 1.3, 1.4, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.5, 3.6, 3.7, 3.8, 3.9, 4, 4.1, 4.2, 4.3, 4.4, 5, 5.1, 5.2, 5.3, 5.4, 8];
             p.forEach((x, i) => lv[i + 1] = {
               prob: x,
-              value: v[i]
+              rec_p: v[i]
             });
             return lv;
           })()
@@ -723,14 +813,14 @@ input:checked + .slider:before {
         "희생": {
           grade: "일반",
           imgId: "1Yuy6PLeo7Jx-fAef04PVuqmiZjR_mw64",
-          desc: "사망 시 {prob}% 확률로 같은 타일에 있는 동일 부족 소속의 유닛에게 나의 유닛 최대 체력의 {value}% 회복",
+          desc: "사망 시 {prob}% 확률로 같은 타일에 있는 동일 부족 소속의 유닛에게 나의 유닛 최대 체력의 {rec_p}% 회복",
           levels: (function() {
             let lv = {};
             const p = [35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 50];
             const v = [10, 10.5, 11, 11.5, 12, 15, 15.5, 16, 16.5, 17, 20, 20.5, 21, 21.5, 22, 25, 25.5, 26, 26.5, 27, 30, 30.5, 31, 31.5, 32, 35, 35.5, 36, 36.5, 37, 45];
             p.forEach((x, i) => lv[i + 1] = {
               prob: x,
-              value: v[i]
+              rec_p: v[i]
             });
             return lv;
           })()
@@ -754,12 +844,12 @@ input:checked + .slider:before {
         "트리플 임팩트": {
           grade: "일반",
           imgId: "1nO4CtfdB_FH7ZvCmL3uj1QPLDJte5mLB",
-          desc: "세번 째 공격마다 내 유닛의 공격력의 {value}%의 추가 피해",
+          desc: "세번 째 공격마다 내 유닛의 공격력의 {burst_p}%의 추가 피해",
           levels: (function() {
             let lv = {};
             const v = [2, 2.5, 3, 3.5, 4, 6, 6.5, 7, 7.5, 8, 10, 10.5, 11, 11.5, 12, 14, 14.5, 15, 15.5, 16, 18, 18.5, 19, 19.5, 20, 22, 22.5, 23, 23.5, 24, 27];
             v.forEach((x, i) => lv[i + 1] = {
-              value: x
+              burst_p: x
             });
             return lv;
           })()
@@ -767,11 +857,11 @@ input:checked + .slider:before {
         "단단한 피부 1": {
           grade: "일반",
           imgId: "1oHu7Ep7BwL7Es4dBRVdTyfnSrfd_xIq1",
-          desc: "적 유닛에게 공격당할 때 피해 {value}만큼 감소",
+          desc: "적 유닛에게 공격당할 때 피해 {red_f}만큼 감소",
           levels: (function() {
             let lv = {};
             for (let i = 1; i <= 31; i++) lv[i] = {
-              value: i * 2
+              red_f: i * 2
             };
             return lv;
           })()
@@ -779,14 +869,14 @@ input:checked + .slider:before {
         "피해 저항 1": {
           grade: "일반",
           imgId: "1tBCAdO-UyCTP32gHwEc7TVISeRINsrqa",
-          desc: "적 유닛에게 공격당할 때 {prob}%의 확률로 피해 {value}만큼 감소",
+          desc: "적 유닛에게 공격당할 때 {prob}%의 확률로 피해 {red_f}만큼 감소",
           levels: (function() {
             let lv = {};
             const p = [30, 30, 30, 30, 30, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 45, 45, 45, 45, 45, 50];
             const v = [30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90];
             p.forEach((x, i) => lv[i + 1] = {
               prob: x,
-              value: v[i]
+              red_f: v[i]
             });
             return lv;
           })()
@@ -794,14 +884,14 @@ input:checked + .slider:before {
         "보호막": {
           grade: "일반",
           imgId: "1-FCajygUymZcpCCxaK7_Scg5NtiPKyiM",
-          desc: "{turn}번의 적 공격 피해를 {value}% 감소",
+          desc: "{turn}번의 적 공격 피해를 {red_p}% 감소",
           levels: (function() {
             let lv = {};
             const t = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3];
             const v = [1, 1.5, 2, 2.5, 3, 5, 5.5, 6, 6.5, 7, 10, 10.5, 11, 11.5, 12, 13, 13.5, 14, 14.5, 15, 18, 18.5, 19, 19.5, 20, 22, 22.5, 23, 23.5, 24, 28];
             t.forEach((x, i) => lv[i + 1] = {
               turn: x,
-              value: v[i]
+              red_p: v[i]
             });
             return lv;
           })()
@@ -861,11 +951,11 @@ input:checked + .slider:before {
         "단단한 피부 2": {
           grade: "희귀",
           imgId: "1XfdIrPSz_xm9v1KHB-TArpaRdv47zHLF",
-          desc: "적 유닛에게 공격당할 때 피해 {value}만큼 감소",
+          desc: "적 유닛에게 공격당할 때 피해 {red_f}만큼 감소",
           levels: (function() {
             let lv = {};
             for (let i = 1; i <= 31; i++) lv[i] = {
-              value: 30 + (i - 1) * 2
+              red_f: 30 + (i - 1) * 2
             };
             return lv;
           })()
@@ -873,14 +963,14 @@ input:checked + .slider:before {
         "피해 저항 2": {
           grade: "희귀",
           imgId: "13As5kbKRnyJA81fUClKxILhq8P9Rws0c",
-          desc: "적 유닛에게 공격당할 때 {prob}% 확률로 피해 {value}만큼 감소",
+          desc: "적 유닛에게 공격당할 때 {prob}% 확률로 피해 {red_f}만큼 감소",
           levels: (function() {
             let lv = {};
             const p = [30, 30, 30, 30, 30, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 45, 45, 45, 45, 45, 50];
             const v = [70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 124, 128, 132, 136, 150];
             p.forEach((x, i) => lv[i + 1] = {
               prob: x,
-              value: v[i]
+              red_f: v[i]
             });
             return lv;
           })()
@@ -888,12 +978,12 @@ input:checked + .slider:before {
         "치명타 확률": {
           grade: "에픽",
           imgId: "1rZUa6JfGfbksXt1qOO32veoEty9er_Bu",
-          desc: "유닛 치명타 확률 {value}% 증가",
+          desc: "유닛 치명타 확률 {prob}% 증가",
           levels: (function() {
             let lv = {};
             const v = [13, 13.3, 13.6, 13.9, 14.2, 17, 17.3, 17.6, 17.9, 18.2, 21, 21.3, 21.6, 21.9, 22.2, 25, 25.5, 26, 26.5, 27, 30, 30.5, 31, 31.5, 32, 35, 35.5, 36, 36.5, 37, 40];
             v.forEach((x, i) => lv[i + 1] = {
-              value: x
+              crit_p: x
             });
             return lv;
           })()
@@ -901,12 +991,12 @@ input:checked + .slider:before {
         "치명타 피해": {
           grade: "에픽",
           imgId: "127l8ExJLlQENOySkwk_TiNDLO5gKo7Rm",
-          desc: "유닛 치명타 피해량 {value}% 증가",
+          desc: "유닛 치명타 피해량 {crit_d}% 증가",
           levels: (function() {
             let lv = {};
             const v = [20, 20.5, 21, 21.5, 22, 25, 25.5, 26, 26.5, 27, 30, 30.5, 31, 31.5, 32, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 50, 51, 52, 53, 54, 60];
             v.forEach((x, i) => lv[i + 1] = {
-              value: x
+              crit_d: x
             });
             return lv;
           })()
@@ -940,14 +1030,14 @@ input:checked + .slider:before {
         "죽을 준비": {
           grade: "에픽",
           imgId: "1x77384PZAogZ_hTJeRH1iLXPrOfM5e_g",
-          desc: "사망 시 {prob}% 확률로 현재 전투중인 유닛에게 나의 유닛의 공격력의 {value}% 피해",
+          desc: "사망 시 {prob}% 확률로 현재 전투중인 유닛에게 나의 유닛의 공격력의 {burst_p}% 피해",
           levels: (function() {
             let lv = {};
             const p = [80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 100];
             const v = [50, 51, 52, 53, 54, 60, 61, 62, 63, 64, 66, 67, 68, 69, 70, 76, 77, 78, 79, 80, 82, 83, 84, 85, 86, 90, 91, 92, 93, 94, 100];
             p.forEach((x, i) => lv[i + 1] = {
               prob: x,
-              value: v[i]
+              burst_p: v[i]
             });
             return lv;
           })()
@@ -961,7 +1051,7 @@ input:checked + .slider:before {
             const v = [15, 15.2, 15.4, 15.6, 15.8, 17, 17.5, 18, 18.5, 19, 22, 22.5, 23, 23.5, 24, 27, 27.5, 28, 28.5, 29, 33, 33.5, 34, 34.5, 35, 39, 39.5, 40, 40.5, 41, 45];
             v.forEach((x, i) => lv[i + 1] = {
               atk_p: x,
-              hp_p: -25
+              hp_p: 25
             });
             return lv;
           })()
@@ -975,7 +1065,7 @@ input:checked + .slider:before {
             const v = [19.5, 20, 20.5, 21, 21.5, 27, 27.5, 28, 28.5, 29, 34.5, 35.5, 36.5, 37.5, 38.5, 44.5, 45.8, 47, 48.3, 49.5, 59.5, 60.8, 62, 63.3, 64.5, 79.5, 80.8, 82, 83.3, 84.5, 102];
             v.forEach((x, i) => lv[i + 1] = {
               hp_p: x,
-              atk_p: -25
+              atk_p: 25
             });
             return lv;
           })()
@@ -983,14 +1073,14 @@ input:checked + .slider:before {
         "흡혈": {
           grade: "유니크",
           imgId: "1wpM4jrjnyShM9jkrWQuleCMRQzqajRg-",
-          desc: "유닛을 공격할 때 {prob}% 확률로 내 유닛 공격력의 {value}% 만큼 체력 회복",
+          desc: "유닛을 공격할 때 {prob}% 확률로 내 유닛 공격력의 {rec_p}% 만큼 체력 회복",
           levels: (function() {
             let lv = {};
             const p = [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 30];
             const v = [30, 32, 34, 36, 38, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 95, 97, 99, 101, 103, 110];
             p.forEach((x, i) => lv[i + 1] = {
               prob: x,
-              value: v[i]
+              rec_p: v[i]
             });
             return lv;
           })()
@@ -1037,7 +1127,7 @@ input:checked + .slider:before {
         "메테오": {
           grade: "전설",
           imgId: "1fJVyoKiTVH1i0votjXaXuwAbTZjxnM-P",
-          desc: "유닛을 공격할 때 {prob}% 확률로 현재 타일에 있는 모든 적에게 공격력의 {value}% 스킬 추가 피해\n레전더리 패시브 : 공격력 {atk_p}%, 체력 {hp_p}% 증가",
+          desc: "유닛을 공격할 때 {prob}% 확률로 현재 타일에 있는 모든 적에게 공격력의 {burst_p}% 스킬 추가 피해\n레전더리 패시브 : 공격력 {atk_p}%, 체력 {hp_p}% 증가",
           levels: (function() {
             let lv = {};
             const p = [50, 50, 50, 50, 50, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 60, 60, 60, 60, 60, 65];
@@ -1045,7 +1135,7 @@ input:checked + .slider:before {
             const pas = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 10];
             p.forEach((x, i) => lv[i + 1] = {
               prob: x,
-              value: v[i],
+              burst_p: v[i],
               atk_p: pas[i],
               hp_p: pas[i]
             });
@@ -1055,7 +1145,7 @@ input:checked + .slider:before {
         "낙뢰": {
           grade: "전설",
           imgId: "1pPUwyTblvZJDbTAPUOJYr8hdUqPTZmy4",
-          desc: "유닛을 공격할 때 {prob}% 확률로 전투중인 상대 유닛에게 {value}% 스킬 추가 피해\n레전더리 패시브 : 공격력 {atk_p}%, 체력 {hp_p}% 증가",
+          desc: "유닛을 공격할 때 {prob}% 확률로 전투중인 상대 유닛에게 {burst_p}% 스킬 추가 피해\n레전더리 패시브 : 공격력 {atk_p}%, 체력 {hp_p}% 증가",
           levels: (function() {
             let lv = {};
             const p = [40, 40, 40, 40, 40, 45, 45, 45, 45, 45, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 60, 60, 60, 60, 60, 65, 65, 65, 65, 65, 65];
@@ -1063,65 +1153,219 @@ input:checked + .slider:before {
             const pas = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 10];
             p.forEach((x, i) => lv[i + 1] = {
               prob: x,
-              value: v[i],
+              burst_p: v[i],
               atk_p: pas[i],
               hp_p: pas[i]
             });
             return lv;
           })()
         },
-        // 부적합 룬 목록 (데이터 없음)
+        // 부적합 룬 목록 (데이터 추가됨)
         "승리의 함성": {
           grade: "일반",
           imgId: "1kdYTPMnC9sHD_xVfJ7KlMEAmepKrI5U3",
-          levels: {}
+          desc: "적 유닛을 처치 시 유닛의 공격력 {atk_p}% 버프 {turn}턴 지속",
+          levels: (function() {
+            let lv = {};
+            const v = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.2, 5.4, 5.6, 5.8, 6.0, 6.2, 6.4, 6.6, 6.8, 7.5];
+            const t = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8];
+            v.forEach((x, i) => lv[i + 1] = {
+              atk_p: x,
+              turn: t[i]
+            });
+            return lv;
+          })()
         },
         "자연의 포옹": {
           grade: "일반",
           imgId: "11shDd_9139ob8f3NJpu51kASPqzfDZTF",
-          levels: {}
+          desc: "자연 구조물(채집지 제외)이 있는 타일 옆에 있을 경우 유닛의 공격력 {atk_f} 체력 {hp_f} 버프",
+          levels: (function() {
+            let lv = {};
+            for (let i = 1; i <= 31; i++) lv[i] = {
+              atk_f: i,
+              hp_f: i * 25
+            };
+            return lv;
+          })()
         },
         "파괴자 1": {
           grade: "일반",
           imgId: "1gEKQmAPtu3APq91BSK7YlUldIkPQQKV3",
-          levels: {}
+          desc: "건축물을 공격할 때 유닛의 공격력 {atk_p}% 증가",
+          levels: (function() {
+            let lv = {};
+            for (let i = 1; i <= 31; i++) {
+              let atk_p;
+              if (i <= 5) atk_p = 5.1 + (i - 1) * 3;
+              else if (i <= 10) atk_p = 7.5 + (i - 6) * 3;
+              else if (i <= 15) atk_p = 9.9 + (i - 11) * 3;
+              else if (i <= 20) atk_p = 13.2 + (i - 16) * 3;
+              else if (i <= 25) atk_p = 17.1 + (i - 21) * 6;
+              else if (i <= 30) atk_p = 23.1 + (i - 26) * 6;
+              else atk_p = 30;
+              lv[i] = {
+                atk_p: parseFloat(atk_p.toFixed(1))
+              };
+            }
+            return lv;
+          })()
         },
         "강인함 1": {
           grade: "일반",
           imgId: "1USRrGEG4SiMnOwYYV_IYy0hllT6fXNhN",
-          levels: {}
+          desc: "건축물에게 공격당할 때 피해 {red_f} 감소",
+          levels: (function() {
+            let lv = {};
+            for (let i = 1; i <= 31; i++) lv[i] = {
+              red_f: i
+            };
+            return lv;
+          })()
         },
         "부족의 축복 1": {
           grade: "일반",
           imgId: "19K30pdy48M0_TW7kR5Iz8Cxbx5NxYVkX",
-          levels: {}
+          desc: "내 부족이 점령한 타일 위에 있을 때 유닛의 공격력 {atk_f} 체력 {hp_f} 증가",
+          levels: (function() {
+            let lv = {};
+            for (let i = 1; i <= 31; i++) lv[i] = {
+              atk_f: i,
+              hp_f: i * 25
+            };
+            return lv;
+          })()
         },
         "파괴자 2": {
           grade: "희귀",
           imgId: "1XWpJQ3PShBg43fHvfVgf1f8t0pDoD5mj",
-          levels: {}
+          desc: "건축물을 공격할 때 유닛의 공격력 {atk_p}% 증가",
+          levels: (function() {
+            let lv = {};
+            for (let i = 1; i <= 31; i++) {
+              let atk_p;
+              if (i <= 5) atk_p = 11.9 + (i - 1) * 0.7;
+              else if (i <= 10) atk_p = 17.5 + (i - 6) * 0.7;
+              else if (i <= 15) atk_p = 23.1 + (i - 11) * 0.7;
+              else if (i <= 20) atk_p = 30.5 + (i - 16) * 0.7;
+              else if (i <= 25) atk_p = 39.9 + (i - 21) * 1.4;
+              else if (i <= 30) atk_p = 53.9 + (i - 26) * 1.4;
+              else atk_p = 70;
+              lv[i] = {
+                atk_p: parseFloat(atk_p.toFixed(1))
+              };
+            }
+            return lv;
+          })()
         },
         "부족의 축복 2": {
           grade: "희귀",
           imgId: "1EIJibIbgJ2EXyMhJT59cSWNACb-ROxxv",
-          levels: {}
+          desc: "내 부족이 점령한 타일 위에 있을 때 유닛의 공격력 {atk_f} 체력 {hp_f} 증가",
+          levels: (function() {
+            let lv = {};
+            for (let i = 1; i <= 31; i++) lv[i] = {
+              atk_f: 15 + (i - 1),
+              hp_f: 375 + (i - 1) * 25
+            };
+            return lv;
+          })()
         },
         "파괴자 3": {
           grade: "에픽",
           imgId: "1sSwqcPHGFhZIR1i-UfwHuU34NvvDPwN2",
-          levels: {}
+          desc: "건축물을 공격할 때 유닛의 공격력 {atk_p}% 증가",
+          levels: (function() {
+            let lv = {};
+            for (let i = 1; i <= 31; i++) {
+              let atk_p;
+              if (i <= 5) atk_p = 28.0 + (i - 1) * 0.8;
+              else if (i <= 10) atk_p = 40.0 + (i - 6) * 0.8;
+              else if (i <= 15) atk_p = 52.0 + (i - 11) * 1.6;
+              else if (i <= 20) atk_p = 68.0 + (i - 16) * 2.0;
+              else if (i <= 25) atk_p = 92.0 + (i - 21) * 2.0;
+              else if (i <= 30) atk_p = 124.0 + (i - 26) * 2.0;
+              else atk_p = 160.0;
+              lv[i] = {
+                atk_p: parseFloat(atk_p.toFixed(1))
+              };
+            }
+            return lv;
+          })()
         },
         "강인함 2": {
           grade: "유니크",
           imgId: "12R07txrHKhMhwoxbE4M-QBw4mxxOUTxf",
-          levels: {}
+          desc: "건축물에게 공격당할 때 피해 {red_p}% 감소",
+          levels: (function() {
+            let lv = {};
+            for (let i = 1; i <= 31; i++) {
+              let red_p;
+              if (i <= 5) red_p = 30.0 + (i - 1) * 0.5;
+              else if (i <= 10) red_p = 35.0 + (i - 6) * 0.5;
+              else if (i <= 15) red_p = 40.0 + (i - 11) * 0.5;
+              else if (i <= 20) red_p = 45.0 + (i - 16) * 0.5;
+              else if (i <= 25) red_p = 50.0 + (i - 21) * 0.5;
+              else if (i <= 30) red_p = 55.0 + (i - 26) * 0.5;
+              else red_p = 60.0;
+              lv[i] = {
+                red_p: parseFloat(red_p.toFixed(1))
+              };
+            }
+            return lv;
+          })()
         },
         "지진": {
           grade: "유니크",
           imgId: "1qH0wEmw_otlxQBBofd-H4kuA2SMKIVKn",
-          levels: {}
-        }
+          desc: "적 건축물 대상 {count}번째 공격마다 주변 1칸 타일에 있는 적 건축물까지 건축물 대상 최종 피해량의 {burst_p}%만큼 피해를 줍니다.",
+          levels: (function() {
+            let lv = {};
+            for (let i = 1; i <= 31; i++) {
+              let burst_p, count;
+              count = (i >= 21) ? 3 : 4;
+              if (i <= 5) burst_p = 200 + (i - 1) * 10;
+              else if (i <= 10) burst_p = 270 + (i - 6) * 10;
+              else if (i <= 15) burst_p = 340 + (i - 11) * 10;
+              else if (i <= 20) burst_p = 410 + (i - 16) * 10;
+              else if (i <= 25) burst_p = 450 + (i - 21) * 10;
+              else if (i <= 30) burst_p = 530 + (i - 26) * 10;
+              else burst_p = 600;
+              lv[i] = {
+                burst_p: burst_p,
+                count: count
+              };
+            }
+            return lv;
+          })()
+        },
       };
+      //룬 데이터 종료
+      // --- 룬 설명 색상 설정 및 변환 로직 추가 ---
+      const RUNE_STYLE_CONFIG = {
+        "#ba0000": ["atk_f", "atk_p", "burst_p", "crit_d"], // 빨강 (전설 등급색) - 공격
+        "#66bb6a": ["hp_f", "hp_p", "rec_p", "value"], // 초록 (희귀 등급색) - 체력/회복
+        "#eb5f0e": ["red_f", "red_p"], // 주황 (유니크 등급색) - 피해 감소
+        "#ff9800": ["prob", "turn", "count"] // 노랑 (에픽 등급색) - 확률/턴
+      };
+      const RUNE_COLOR_MAP = {};
+      for (const [color, keys] of Object.entries(RUNE_STYLE_CONFIG)) {
+        keys.forEach(key => RUNE_COLOR_MAP[key] = color);
+      }
+      const RUNE_TAG_REGEX = /\{(\w+)\}/g;
+
+      function getFormattedDesc(runeName, level) {
+        const rune = RUNES_DATA[runeName];
+        if (!rune || !rune.levels[level]) return "";
+        const stats = rune.levels[level];
+        return rune.desc.replace(RUNE_TAG_REGEX, (match, key) => {
+          const value = stats[key];
+          if (value === undefined) return match;
+          const color = RUNE_COLOR_MAP[key] || "#fff";
+          return `<span style="color: ${color}; font-weight: bold;">${value}</span>`;
+        });
+      }
+      // ------------------------------------------
       const titanStats = [];
       const unsuitableList = ["강인함 1", "강인함 2", "자연의 포옹", "승리의 함성", "부족의 축복 1", "부족의 축복 2", "파괴자 1", "파괴자 2", "파괴자 3", "지진"];
       const vampExclusion = ["고독한 분노", "협동 공격", "마지막 선물", "보스 슬레이어"];
@@ -1149,8 +1393,18 @@ input:checked + .slider:before {
         document.getElementById('baseAtk').value = config.baseAtk;
         document.getElementById('baseHp').value = config.baseHp;
         document.getElementById('dinoCount').value = config.dinoCount;
-        document.getElementById('titanLevelSelect').value = config.titanLevel;
-        document.getElementById('timeLimitSelect').value = config.timeLimit;
+        // 1. 타이탄 레벨 복구 및 라벨 갱신
+        const tLevel = config.titanLevel || 1;
+        document.getElementById('titanLevelSelect').value = tLevel;
+        if (titanStats[tLevel]) {
+          const atk = titanStats[tLevel].atk;
+          const hp = titanStats[tLevel].hp.toLocaleString();
+          document.querySelector('#titanDropdown .selected-value').textContent = `Lv. ${tLevel} (ATK ${atk} / HP ${hp})`;
+        }
+        // 2. 시간 제한 복구 및 라벨 갱신
+        const tLimit = config.timeLimit || 90;
+        document.getElementById('timeLimitSelect').value = tLimit;
+        document.querySelector('#timeDropdown .selected-value').textContent = `${tLimit}분`;
         // 룬 슬롯 복구
         if (config.selectedRunes) {
           selectedRunes = config.selectedRunes;
@@ -1168,13 +1422,23 @@ input:checked + .slider:before {
         calcFinal(); // 화면 스탯 갱신
       }
       window.onload = () => {
-        // 타이탄 데이터 생성 (기존 로직 유지)
+        // 1. 타이탄 데이터 및 커스텀 드롭다운 목록 생성
+        const titanList = document.getElementById('titanList');
         for (let lv = 1; lv <= 39; lv++) {
           let atk, hp;
-          const baseHps = [2500000, 5000000, 7500000, 10000000, 13125000, 16875000, 20625000, 24375000, 28125000, 31875000];
-          if (lv <= 10) {
+          // 제공해주신 자료 기반 정확한 스탯 계산
+          if (lv <= 6) {
             atk = lv * 5;
-            hp = baseHps[lv - 1];
+            hp = 2500000 * lv;
+          } else if (lv <= 10) {
+            atk = 30 + (lv - 6) * 15;
+            const hps = {
+              7: 20625000,
+              8: 24375000,
+              9: 28125000,
+              10: 31875000
+            };
+            hp = hps[lv];
           } else {
             atk = 90 + (lv - 10) * 15;
             hp = 31875000 + (lv - 10) * 3750000;
@@ -1183,13 +1447,35 @@ input:checked + .slider:before {
             atk,
             hp
           };
-          const opt = new Option(`Lv.${lv} (ATK ${atk} / HP ${hp.toLocaleString()})`, lv);
-          document.getElementById('titanLevelSelect').add(opt);
+          // 커스텀 드롭다운용 <li> 생성
+          const li = document.createElement('li');
+          const label = `Lv. ${lv} (ATK ${atk} / HP ${hp.toLocaleString()})`;
+          li.textContent = label;
+          li.onclick = () => {
+            document.querySelector('#titanDropdown .selected-value').textContent = label;
+            document.getElementById('titanLevelSelect').value = lv; // hidden input에 저장
+            titanList.style.display = 'none';
+            saveUserConfig();
+          };
+          titanList.appendChild(li);
         }
-        const timeSelect = document.getElementById('timeLimitSelect');
-        for (let m = 10; m <= 120; m += 10) timeSelect.add(new Option(`${m}분`, m));
+        // 2. 시간 제한 목록 생성 (10~120분)
+        const timeList = document.getElementById('timeList');
+        for (let m = 10; m <= 120; m += 10) {
+          const li = document.createElement('li');
+          li.textContent = `${m}분`;
+          li.onclick = () => {
+            document.querySelector('#timeDropdown .selected-value').textContent = `${m}분`;
+            document.getElementById('timeLimitSelect').value = m; // hidden input에 저장
+            timeList.style.display = 'none';
+            saveUserConfig();
+          };
+          timeList.appendChild(li);
+        }
+        // 3. 공룡 마리수 (기존 select 유지)
         const dCount = document.getElementById('dinoCount');
         for (let i = 1; i <= 9; i++) dCount.add(new Option(`${i}마리`, i));
+        // 4. 룬 슬롯 생성
         const sc = document.getElementById('slotContainer');
         for (let i = 0; i < 5; i++) {
           const div = document.createElement('div');
@@ -1199,6 +1485,7 @@ input:checked + .slider:before {
           div.onclick = () => openPicker(i);
           sc.appendChild(div);
         }
+        // 5. 룬 그리드 생성
         const mainGrid = document.getElementById('mainGrid');
         const unsuitableGrid = document.getElementById('unsuitableGrid');
         Object.keys(RUNES_DATA).forEach(name => {
@@ -1211,9 +1498,11 @@ input:checked + .slider:before {
           if (isUn) unsuitableGrid.appendChild(item);
           else mainGrid.appendChild(item);
         });
+        // 6. 룬 레벨 셀렉트 (기존 select 유지)
         const ls = document.getElementById('levelSelect');
         for (let i = 1; i <= 31; i++) ls.add(new Option(`Lv.${i}`, i));
         ls.onchange = () => updateDetail(tempName, ls.value);
+        // 7. 설정 불러오기
         loadUserConfig();
       };
 
@@ -1251,10 +1540,15 @@ input:checked + .slider:before {
         const r = RUNES_DATA[name];
         const s = r.levels[lv];
         let d = r.desc || "";
-        if (s) Object.keys(s).forEach(k => {
-          const regex = new RegExp(`{${k}}`, "g");
-          d = d.replace(regex, `<b>${s[k]}</b>`);
-        });
+        if (s) {
+          // {key} 형태의 태그를 찾아 매핑된 색상과 수치로 치환
+          d = d.replace(/\{(\w+)\}/g, (match, key) => {
+            const value = s[key];
+            if (value === undefined) return match;
+            const color = RUNE_COLOR_MAP[key] || "#fff"; // 매핑 없으면 흰색
+            return `<span style="color: ${color}; font-weight: bold;">${value}</span>`;
+          });
+        }
         document.getElementById('detailDesc').innerHTML = d;
       }
       // 1. 중복 체크 및 장착 로직
@@ -1334,8 +1628,8 @@ input:checked + .slider:before {
             if (s.hp_f) hpF += s.hp_f;
             if (s.hp_p) hpP += s.hp_p;
           }
-          if (r.name === "치명타 확률") cRate += s.value;
-          if (r.name === "치명타 피해") cDmg += s.value;
+          if (r.name === "치명타 확률") cRate += s.prob;
+          if (r.name === "치명타 피해") cDmg += s.crit_d;
         });
         return {
           fAtk: (bAtk + atkF) * (1 + atkP / 100),
@@ -1353,9 +1647,6 @@ input:checked + .slider:before {
       }
       // ... (헤더 및 스타일 동일) ...
       /* ... (위쪽 타이탄 데이터 생성 및 기본 이벤트 리스너는 동일) ... */
-      // 시뮬레이션 핵심 함수
-      // 시뮬레이션 핵심 함수
-      // 시뮬레이션 핵심 함수
       async function startSimulation() {
         const iterations = 500;
         const batchSize = 1;
@@ -1448,8 +1739,8 @@ input:checked + .slider:before {
                   if (r.s.hp_f) hpF += r.s.hp_f;
                   if (r.s.hp_p) hpP += r.s.hp_p;
                 }
-                if (r.name === "치명타 확률") cRate += r.s.value;
-                if (r.name === "치명타 피해") cDmg += r.s.value;
+                if (r.name === "치명타 확률") cRate += r.s.prob;
+                if (r.name === "치명타 피해") cDmg += r.s.crit_d;
               });
               const currentMaxHp = (bHp + hpF) * (1 + hpP / 100);
               const currentAtk = (bAtk + atkF) * (1 + atkP / 100);
@@ -1467,21 +1758,32 @@ input:checked + .slider:before {
                 d.attackCount++;
                 let finalBaseAtk = currentAtk + d.giftAtk;
                 const calcDmg = (val) => (Math.random() * 100 < cRate) ? val * (cDmg / 100) : val;
+                // 평타
                 tHp -= calcDmg(finalBaseAtk);
+                // 낙뢰: s.prob(확률), s.burst_p(데미지 배율)
                 const thunder = runes.find(r => r && r.name === "낙뢰");
-                if (thunder && Math.random() * 100 < thunder.s.prob) tHp -= calcDmg(finalBaseAtk * (thunder.s.value / 100));
+                if (thunder && Math.random() * 100 < thunder.s.prob) {
+                  tHp -= calcDmg(finalBaseAtk * (thunder.s.burst_p / 100));
+                }
+                // 메테오: s.prob(확률), s.burst_p(데미지 배율)
                 const meteor = runes.find(r => r && r.name === "메테오");
-                if (meteor && Math.random() * 100 < meteor.s.prob) tHp -= calcDmg(finalBaseAtk * (meteor.s.value / 100));
+                if (meteor && Math.random() * 100 < meteor.s.prob) {
+                  tHp -= calcDmg(finalBaseAtk * (meteor.s.burst_p / 100));
+                }
+                // 트리플 임팩트: s.burst_p(데미지 배율)
                 const triple = runes.find(r => r && r.name === "트리플 임팩트");
-                if (triple && d.attackCount % 3 === 0) tHp -= calcDmg(finalBaseAtk * (triple.s.value / 100));
-                // 타이탄 사망 체크 (사망 시 즉시 탈출)
+                if (triple && d.attackCount % 3 === 0) {
+                  tHp -= calcDmg(finalBaseAtk * (triple.s.burst_p / 100));
+                }
+                // 타이탄 사망 체크
                 if (tHp <= 0) {
                   tHp = 0;
                   break;
                 }
+                // 흡혈: s.prob(확률), s.rec_p(회복 배율)
                 const vRune = runes.find(r => r && r.name === "흡혈");
                 if (vRune && Math.random() * 100 < vRune.s.prob) {
-                  d.hp = Math.min(currentMaxHp, d.hp + (vampBaseAtk * vRune.s.value / 100));
+                  d.hp = Math.min(currentMaxHp, d.hp + (vampBaseAtk * vRune.s.rec_p / 100));
                 }
                 if (d.giftSteps > 0) {
                   d.giftSteps--;
@@ -1502,36 +1804,37 @@ input:checked + .slider:before {
                 const deathRune = runes.find(r => r && r.name === "죽을 준비");
                 for (let d of dinos) {
                   if (d.hp > 0) {
-                    if (healRune && Math.random() * 100 < healRune.s.prob) d.hp = Math.min(currentMaxHp, d.hp + (currentMaxHp * healRune.s.value / 100));
+                    if (healRune && Math.random() * 100 < healRune.s.prob) d.hp = Math.min(currentMaxHp, d.hp + (currentMaxHp * healRune.s.rec_p / 100));
                     let currentTDmg = baseTDmg;
                     const skin1 = runes.find(r => r && r.name === "단단한 피부 1");
                     const skin2 = runes.find(r => r && r.name === "단단한 피부 2");
                     const res1 = runes.find(r => r && r.name === "피해 저항 1");
                     const res2 = runes.find(r => r && r.name === "피해 저항 2");
-                    if (skin1) currentTDmg -= skin1.s.value;
-                    if (skin2) currentTDmg -= skin2.s.value;
-                    if (res1 && Math.random() * 100 < res1.s.prob) currentTDmg -= res1.s.value;
-                    if (res2 && Math.random() * 100 < res2.s.prob) currentTDmg -= res2.s.value;
+                    if (skin1) currentTDmg -= skin1.s.red_f;
+                    if (skin2) currentTDmg -= skin2.s.red_f;
+                    if (res1 && Math.random() * 100 < res1.s.prob) currentTDmg -= res1.s.red_f;
+                    if (res2 && Math.random() * 100 < res2.s.prob) currentTDmg -= res2.s.red_f;
                     currentTDmg = Math.max(0, currentTDmg);
                     if (d.shieldSteps > 0) {
-                      currentTDmg = currentTDmg * (1 - (sRune ? sRune.s.value : 0) / 100);
+                      currentTDmg = currentTDmg * (1 - (sRune ? sRune.s.red_p : 0) / 100);
                       d.shieldSteps--;
                     }
                     d.hp = Math.max(0, d.hp - currentTDmg);
+                    // 사망 시 발동 효과
                     if (d.hp === 0) {
                       if (sacrificeRune && Math.random() * 100 < sacrificeRune.s.prob) {
                         dinos.forEach(target => {
-                          if (target.hp > 0) target.hp = Math.min(currentMaxHp, target.hp + (currentMaxHp * sacrificeRune.s.value / 100));
+                          if (target.hp > 0) target.hp = Math.min(currentMaxHp, target.hp + (currentMaxHp * sacrificeRune.s.rec_p / 100));
                         });
                       }
                       if (deathRune && Math.random() * 100 < deathRune.s.prob) {
-                        tHp -= (currentAtk * deathRune.s.value / 100);
-                        if (tHp <= 0) tHp = 0; // 죽준 데미지로 타이탄 사망 시
+                        tHp -= (currentAtk * deathRune.s.burst_p / 100);
+                        if (tHp <= 0) tHp = 0;
                       }
                       if (giftRune && Math.random() * 100 < giftRune.s.prob) {
                         dinos.forEach(target => {
                           if (target.hp > 0) {
-                            target.giftAtk += (currentAtk * giftRune.s.value / 100);
+                            target.giftAtk += giftRune.s.atk_f;
                             target.giftSteps = giftRune.s.turn;
                           }
                         });
@@ -1545,17 +1848,17 @@ input:checked + .slider:before {
                 }
               }
               // t 루프 내부 (공룡 공격/타이탄 공격 로직 근처)
-if (isLogEnabled && i === 0) { // 로그가 켜져 있고, 첫 번째 반복일 때만 기록
-    detailedLogs.push({
-        "시간": t + "초",
-        "타이탄HP": Math.floor(tHp).toLocaleString(),
-        "생존공룡": aliveCount + "마리",
-        "공룡상태": dinos.map((d, idx) => ({
-            "번호": idx + 1,
-            "남은HP": Math.max(0, d.hp).toFixed(0)
-        }))
-    });
-}
+              if (isLogEnabled && i === 0) { // 로그가 켜져 있고, 첫 번째 반복일 때만 기록
+                detailedLogs.push({
+                  "시간": t + "초",
+                  "타이탄HP": Math.floor(tHp).toLocaleString(),
+                  "생존공룡": aliveCount + "마리",
+                  "공룡상태": dinos.map((d, idx) => ({
+                    "번호": idx + 1,
+                    "남은HP": Math.max(0, d.hp).toFixed(0)
+                  }))
+                });
+              }
               let tickHpSum = 0;
               let safeFullHp = initialFullHp > 0 ? initialFullHp : 1;
               dinos.forEach(d => tickHpSum += (Math.max(0, d.hp) / safeFullHp) * 100);
@@ -1619,40 +1922,38 @@ if (isLogEnabled && i === 0) { // 로그가 켜져 있고, 첫 번째 반복일 
             });
           }
           // finalize 함수 끝부분
-if (isLogEnabled && detailedLogs.length > 0) {
-    const reportBox = document.getElementById('battleReport');
-    
-    // 기존 버튼 중복 방지
-    const oldBtn = document.getElementById('logDownloadBtn');
-    if (oldBtn) oldBtn.remove();
-
-    const logBtn = document.createElement('button');
-    logBtn.id = 'logDownloadBtn';
-    logBtn.innerHTML = "📊 상세 로그(.txt) 다운로드";
-    logBtn.className = "btn-simulate"; 
-    logBtn.style.cssText = "margin-top:15px; background:#455a64; font-size:14px;";
-
-    logBtn.onclick = () => {
-        // 텍스트 파일 내용 구성
-        let content = "=== 상세 전투 로그 (1회차) ===\n\n";
-        detailedLogs.forEach(entry => {
-            content += `[${entry.시간}] 타이탄HP: ${entry.타이탄HP} | 생존: ${entry.생존공룡}\n`;
-            entry.공룡상태.forEach(d => {
-                content += `  - ${d.번호}번 공룡 HP: ${d.남은HP}\n`;
-            });
-            content += "--------------------------------\n";
-        });
-
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `battle_log_${new Date().getTime()}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-    };
-    reportBox.appendChild(logBtn);
-}
+          if (isLogEnabled && detailedLogs.length > 0) {
+            const reportBox = document.getElementById('battleReport');
+            // 기존 버튼 중복 방지
+            const oldBtn = document.getElementById('logDownloadBtn');
+            if (oldBtn) oldBtn.remove();
+            const logBtn = document.createElement('button');
+            logBtn.id = 'logDownloadBtn';
+            logBtn.innerHTML = "📊 상세 로그(.txt) 다운로드";
+            logBtn.className = "btn-simulate";
+            logBtn.style.cssText = "margin-top:15px; background:#455a64; font-size:14px;";
+            logBtn.onclick = () => {
+              // 텍스트 파일 내용 구성
+              let content = "=== 상세 전투 로그 (1회차) ===\n\n";
+              detailedLogs.forEach(entry => {
+                content += `[${entry.시간}] 타이탄HP: ${entry.타이탄HP} | 생존: ${entry.생존공룡}\n`;
+                entry.공룡상태.forEach(d => {
+                  content += `  - ${d.번호}번 공룡 HP: ${d.남은HP}\n`;
+                });
+                content += "--------------------------------\n";
+              });
+              const blob = new Blob([content], {
+                type: 'text/plain'
+              });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `battle_log_${new Date().getTime()}.txt`;
+              a.click();
+              URL.revokeObjectURL(url);
+            };
+            reportBox.appendChild(logBtn);
+          }
         };
         runBatch();
       }
