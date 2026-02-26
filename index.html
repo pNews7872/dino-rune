@@ -1684,12 +1684,20 @@
     function applyRuneToSlot() {
       const lv = document.getElementById('levelSelect').value;
       const slot = document.getElementById(`slot-${activeSlotIdx}`);
+      // --- [추가] 압축된 힘 vs 매머드의 힘 상호 배타적 체크 ---
+      if (tempName === "압축된 힘" && selectedRunes.some(r => r && r.name === "매머드의 힘")) {
+        alert("'매머드의 힘'과 '압축된 힘'은 동시에 장착할 수 없습니다.");
+        return;
+      }
+      if (tempName === "매머드의 힘" && selectedRunes.some(r => r && r.name === "압축된 힘")) {
+        alert("'압축된 힘'과 '매머드의 힘'은 동시에 장착할 수 없습니다.");
+        return;
+      }
       // 동일 룬이 이미 다른 슬롯에 있는지 체크하여 제거
       selectedRunes.forEach((rune, idx) => {
         if (rune && rune.name === tempName) {
           selectedRunes[idx] = null;
           const otherSlot = document.getElementById(`slot-${idx}`);
-          // 안전하게 텍스트로 초기화
           otherSlot.textContent = '';
           otherSlot.innerHTML = `<span style="font-size:10px; color:#aaa;">슬롯 ${idx+1}</span>`;
         }
