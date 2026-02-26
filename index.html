@@ -785,6 +785,7 @@
         <div id="runeDetail" style="border-top: 1px solid var(--border-color); margin-top: 15px; padding-top: 15px;">
           <div id="detailGrade" style="font-size:11px; font-weight:bold;"></div>
           <h3 id="detailName" style="margin:5px 0; font-size: 1.1rem;"></h3>
+          <div id="runeWarning" style="color: #ff4444; font-size: 12px; font-weight: bold; margin-bottom: 8px; display: none; background: rgba(255,68,68,0.1); padding: 5px; border-radius: 4px;"></div>
           <div id="levelArea">
             <select id="levelSelect"></select>
             <div class="desc-box" id="detailDesc"></div>
@@ -1681,38 +1682,46 @@
       document.getElementById('detailDesc').innerHTML = d;
     }
     // 1. 중복 체크 및 장착 로직
-    function applyRuneToSlot() {
+function applyRuneToSlot() {
       const lv = document.getElementById('levelSelect').value;
       const slot = document.getElementById(`slot-${activeSlotIdx}`);
-      // --- [추가] 압축된 힘 vs 매머드의 힘 상호 배타적 체크 ---
-      if (tempName === "압축된 힘" && selectedRunes.some(r => r && r.name === "매머드의 힘")) {
-        alert("'매머드의 힘'과 '압축된 힘'은 동시에 장착할 수 없습니다.");
-        return;
+      const warnEl = document.getElementById('runeWarning'); // 경고 요소 가져오기
+
+      // --- 상호 배타적 체크 ---
+      const isAddingCompression = (tempName === "압축된 힘");
+      const isAddingMammoth = (tempName === "매머드의 힘");
+
+      if (isAddingCompression || isAddingMammoth) {
+        const targetToRemove = isAddingCompression ? "매머드의 힘" : "압축된 힘";
+        const hasOpposite = selectedRunes.some(r => r && r.name === targetToRemove);
+
+        if (hasOpposite) {
+          // 사이트 alert 대신 디자인된 문구 노출
+          warnEl.innerText = `⚠️ '${targetToRemove}'과 동시에 장착할 수 없습니다.`;
+          warnEl.style.display = 'block';
+          
+          // 사용자가 인지하도록 살짝 강조 효과 (선택사항)
+          warnEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          return; 
+        }
       }
-      if (tempName === "매머드의 힘" && selectedRunes.some(r => r && r.name === "압축된 힘")) {
-        alert("'압축된 힘'과 '매머드의 힘'은 동시에 장착할 수 없습니다.");
-        return;
-      }
-      // 동일 룬이 이미 다른 슬롯에 있는지 체크하여 제거
+      // -----------------------
+
+      // 중복 룬 제거 및 데이터 저장 로직 (기존과 동일)
       selectedRunes.forEach((rune, idx) => {
         if (rune && rune.name === tempName) {
           selectedRunes[idx] = null;
           const otherSlot = document.getElementById(`slot-${idx}`);
-          otherSlot.textContent = '';
           otherSlot.innerHTML = `<span style="font-size:10px; color:#aaa;">슬롯 ${idx+1}</span>`;
         }
       });
-      // 데이터 저장
-      selectedRunes[activeSlotIdx] = {
-        name: tempName,
-        lv: lv
-      };
-      // DOM 업데이트: 안전하게 비우고 삽입
-      slot.textContent = '';
-      slot.innerHTML = `
-        <img src="${getImgUrl(RUNES_DATA[tempName].imgId)}" class="slot-img">
-        <div class="slot-lv-tag">Lv.${lv}</div>`;
+
+      selectedRunes[activeSlotIdx] = { name: tempName, lv: lv };
+      slot.innerHTML = `<img src="${getImgUrl(RUNES_DATA[tempName].imgId)}" class="slot-img"><div class="slot-lv-tag">Lv.${lv}</div>`;
+      
+      // 장착 성공 시 UI 정리
       document.getElementById('runePicker').style.display = 'none';
+      warnEl.style.display = 'none'; 
       calcFinal();
       saveUserConfig();
     }
@@ -1731,6 +1740,7 @@
     // 3. 상세 정보 표시 및 자동 스크롤
     function showDetail(name) {
       tempName = name;
+      document.getElementById('runeWarning').style.display = 'none';
       const r = RUNES_DATA[name];
       const detailView = document.getElementById('runeDetail');
       detailView.style.display = 'block';
