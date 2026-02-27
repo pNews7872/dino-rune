@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 
+/* 헤드 시작 */
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,13 +10,14 @@
   <title>다이노 뮤턴트 타이탄 시뮬레이터</title>
   <meta name="description" content="다이노 뮤턴트의 타이탄 보스 결과를 미리 예측할 수 있습니다. 최적의 룬 세팅을 찾아보세요.">
   <meta name="keywords" content="다이노 뮤턴트, 타이탄, 시뮬레이터, 룬, 룬 세팅, 스탯, 계산">
-  <style>
-/*스타일 이전됨*/
-  </style>
+
+  <link rel="stylesheet" href="style.css">
 </head>
+/*헤드 끝*/
 
+/*바디 시작*/
 <body>
-
+  /*메뉴 창*/
   <div id="sideMenu" class="side-menu">
     <div class="side-header">
       <span style="font-weight: bold;">설정</span>
@@ -54,6 +56,8 @@
   <div class="container" style="margin-top: 60px;">
     <div class="warning" style="text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 15px; margin-bottom: 5px;">
       ※ 본 시뮬레이터는 참고용이며, 실제 연산 방식과 차이가 있을 수 있습니다.
+
+      /*기본 스탯 창*/
     </div>
     <div class="card">
       <h2>내 공룡 정보</h2>
@@ -62,7 +66,6 @@
           <label>기본 공격력</label>
           <input type="tel" id="baseAtk" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, ''); calcFinal();" onblur="if(this.value === '' || Number(this.value) < 1) this.value = 1; calcFinal();" onfocus="this.select()" placeholder="최소치 1">
         </div>
-
         <div>
           <label>기본 체력</label>
           <input type="tel" id="baseHp" value="10" oninput="this.value = this.value.replace(/[^0-9]/g, ''); calcFinal();" onblur="if(this.value === '' || Number(this.value) < 10) this.value = 10; calcFinal();" onfocus="this.select()" placeholder="최소치 10">
@@ -74,6 +77,7 @@
       </div>
     </div>
 
+    /*룬 선택 창*/
     <div class="card">
       <h2>장착된 룬</h2>
       <div class="slot-wrapper" id="slotContainer"></div>
@@ -122,6 +126,7 @@
       </div>
     </div>
 
+    /*최종 스탯 창*/
     <div class="card">
       <h2>실시간 전투 시뮬레이션</h2>
       <div class="stat-group">
@@ -132,8 +137,10 @@
       </div>
     </div>
 
+    /*시뮬 시작 버튼*/
     <button class="btn-simulate" onclick="startSimulation()">시뮬레이션 시작 ⚔️</button>
 
+    /*결과창*/
     <div id="battleReport" class="report-box">
       <div class="report-item">총 입힌 피해량 <span class="report-val" id="repTotalDmg">0</span></div>
       <div class="report-item">남은 타이탄 체력 <span class="report-val" id="repTitanHp">0</span></div>
@@ -154,11 +161,9 @@
     </div>
   </div>
 
-  <script>
-  </script>
+  <script src="runes_data.js"></script>
+  <script src="script.js"></script>
 </body>
+/*바디 끝*/
 
 </html>
-
-
-
