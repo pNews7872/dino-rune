@@ -1,4 +1,4 @@
-    const RUNES_DATA = {
+const RUNES_DATA = {
       "힐": {
         grade: "일반",
         imgId: "RuneSprite_6",
